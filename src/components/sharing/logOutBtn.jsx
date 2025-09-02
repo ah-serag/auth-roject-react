@@ -13,7 +13,7 @@ const [LogOut] = useLogOutMutation()
    LogOut()
    cookies.remove("accessToken")
    Navigate("/auth/signin")
- 
+ console.log("logout")
    
   }
 
