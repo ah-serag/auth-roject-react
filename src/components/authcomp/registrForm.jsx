@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import Cookies from 'js-cookie'
+// import Cookies from 'js-cookie'
 import { useRegisterMutation } from '../../Feutures/auths/authApiSlice'
 import { useNavigate } from 'react-router-dom'
 import WelcomeCelebration from '../sharing/welcome_celebration'
 import { useDispatch , useSelector } from 'react-redux'
-import { SetInfoUser } from '../../slices/userInfoSlice'
-
-
+import EmailConfirmation from '../sharing/Emailconfirmation'
 
 
 
@@ -21,10 +19,11 @@ const RegistrForm = () => {
 })
  
 const userInfo = useSelector((state)=> state.UserInformation)
-const dispatch = useDispatch()
 const navigate = useNavigate()
 const [register , {isError , error ,isLoading,isSuccess}] = useRegisterMutation()
 const [showWelecom , setShowWelecome] = useState(false)
+const [showConfirm , setShowConfirm] = useState(false)
+
 
 
 const onRegister = async (e)=>{
@@ -34,27 +33,40 @@ e.preventDefault() ;
 try{
 
 const {data} =  await register(valueForm)
+const messageverify = data.message
 
-  const accessToken = data.accessToken
-   
-  //
-  if(accessToken){
-   Cookies.set("accessToken",accessToken)
-
-   setValueForm({
+   if(messageverify){ 
+    setShowConfirm(true)
+    setTimeout(()=>{navigate("/auth/signin")},2000)
+  
+    setValueForm({
     Frist_Name :'' ,
     Last_Name :'' ,
     email:'' ,
     password:''
      })
+
+    }
+   
+
+  //
+  // if(accessToken){
+  //  Cookies.set("accessToken",accessToken)
+
+  //  setValueForm({
+  //   Frist_Name :'' ,
+  //   Last_Name :'' ,
+  //   email:'' ,
+  //   password:''
+  //    })
      
-   // set info user in redux
-   dispatch(SetInfoUser({name: data.name , email:data.email}))
-   // show welecome
-   setShowWelecome(true)
+  //  // set info user in redux
+  //  dispatch(SetInfoUser({name: data.name , email:data.email}))
+  //  // show welecome
+  //  setShowWelecome(true)
      
 
-   }
+  //  }
 }catch(error){
    console.log(error)
  }
@@ -66,6 +78,10 @@ const {data} =  await register(valueForm)
   return (
     <>
    {showWelecom &&  <WelcomeCelebration name={userInfo.UserName} onClose={()=> navigate('/Dashboard')}/>}
+     
+    
+    {showConfirm && <EmailConfirmation/>}
+
 
    {!showWelecom &&  
 <form
